@@ -6,7 +6,9 @@ import {
   Button,
   FlatList,
   Text,
+  Alert,
 } from 'react-native';
+import DialogInput from 'react-native-dialog-input';
 
 const styles = StyleSheet.create({
   input: {
@@ -32,25 +34,40 @@ const styles = StyleSheet.create({
 });
 
 type Todo = {
-  key: string;
+  task: string;
 };
 
 export default function App() {
   const [isName, setIsName] = useState<string>('');
+  const [toDo, setTodo] = useState<Todo[]>([
+    {task: 'David'},
+    {task: 'Pedro'},
+    {task: 'Matheus'},
+    {task: 'Amanda'},
+    {task: 'Evelyn'},
+    {task: 'Joel'},
+    {task: 'John'},
+    {task: 'Jillian'},
+    {task: 'Jimmy'},
+    {task: 'Julie'},
+  ]);
   const [toDoTela, setTodoTela] = useState<Todo[]>([]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  let toDo = [
-    {key: 'David'},
-    {key: 'Pedro'},
-    {key: 'Matheus'},
-    {key: 'Amanda'},
-    {key: 'Evelyn'},
-    {key: 'Joel'},
-    {key: 'John'},
-    {key: 'Jillian'},
-    {key: 'Jimmy'},
-    {key: 'Julie'},
-  ];
+  const [input, setInput] = React.useState('');
+  const [tarefaVisible, setTarefaVisible] = React.useState(false);
+
+  // let toDo = [{task: '', status: ''}];
+  // const toDo = [
+  //   {task: 'David'},
+  //   {task: 'Pedro'},
+  //   {task: 'Matheus'},
+  //   {task: 'Amanda'},
+  //   {task: 'Evelyn'},
+  //   {task: 'Joel'},
+  //   {task: 'John'},
+  //   {task: 'Jillian'},
+  //   {task: 'Jimmy'},
+  //   {task: 'Julie'},
+  // ];
 
   useEffect(() => {
     setTodoTela(toDo);
@@ -59,7 +76,7 @@ export default function App() {
   useEffect(() => {
     if (isName.length >= 1) {
       const toDoToResult = toDo.filter(p => {
-        if (!p.key.indexOf(isName)) {
+        if (!p.task.indexOf(isName)) {
           return p;
         }
       });
@@ -68,6 +85,14 @@ export default function App() {
       setTodoTela(toDo);
     }
   }, [isName]);
+
+  useEffect(() => {
+    if (typeof input !== undefined && input !== '') {
+      const arrayTemp = [...toDo, {task: input}];
+      setTodo(arrayTemp);
+      setTodoTela(toDo);
+    }
+  }, [input]);
 
   return (
     <>
@@ -80,6 +105,7 @@ export default function App() {
         title="Adcionar Nova Tarefa"
         color="#841584"
         accessibilityLabel="Nova Tarefa"
+        onPress={() => setTarefaVisible(true)}
       />
       <TextInput
         style={styles.input}
@@ -93,7 +119,17 @@ export default function App() {
 
       <FlatList
         data={toDoTela}
-        renderItem={({item}) => <Text style={styles.item}>{item.key}</Text>}
+        renderItem={({item}) => <Text style={styles.item}>{item.task}</Text>}
+      />
+
+      <DialogInput
+        isDialogVisible={tarefaVisible}
+        title={'Tarefa'}
+        hintInput={'Digite aqui uma tarefa'}
+        submitInput={(inputText: React.SetStateAction<string>) => {
+          setInput(inputText), setTarefaVisible(false);
+        }}
+        closeDialog={() => setTarefaVisible(false)}
       />
     </>
   );

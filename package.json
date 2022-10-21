@@ -11,7 +11,8 @@
   },
   "dependencies": {
     "react": "18.1.0",
-    "react-native": "0.70.3"
+    "react-native": "0.70.3",
+    "react-native-dialog-input": "^1.0.8"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
