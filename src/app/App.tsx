@@ -89,24 +89,14 @@ type Todo = {
 
 export default function App() {
   const [isName, setIsName] = useState<string>('');
-  const [toDo, setTodo] = useState<Todo[]>([
-    {id: 1, task: 'David', status: 'todo'},
-    {id: 2, task: 'Pedro', status: 'doing'},
-    {id: 3, task: 'Matheus', status: 'todo'},
-    {id: 4, task: 'Amanda', status: 'doing'},
-    {id: 5, task: 'Evelyn', status: 'todo'},
-    {id: 6, task: 'Joel', status: 'doing'},
-    {id: 7, task: 'John', status: 'todo'},
-    {id: 8, task: 'Jillian', status: 'doing'},
-    {id: 9, task: 'Jimmy', status: 'todo'},
-    {id: 10, task: 'Julie', status: 'completed'},
-  ]);
+  const [toDo, setTodo] = useState<Todo[]>([]);
   const [toDoTela, setTodoTela] = useState<Todo[]>([]);
   const [input, setInput] = React.useState('');
   const [tarefaVisible, setTarefaVisible] = React.useState(false);
   const [isModal, setIsModal] = React.useState(false);
   const [idTodo, setIdTodo] = React.useState(0);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     setTodoTela(toDo);
   }, []);
@@ -114,7 +104,7 @@ export default function App() {
   useEffect(() => {
     if (isName.length >= 1) {
       const toDoToResult = toDo.filter(p => {
-        if (!p.task.indexOf(isName)) {
+        if (p.task.includes(isName)) {
           return p;
         }
       });
@@ -175,7 +165,7 @@ export default function App() {
         onChangeText={text => setIsName(text)}
       />
 
-      {toDoTela.length === 0 ? (
+      {toDoTela?.length === 0 ? (
         <Image source={require('../image/nodata.png')} style={styles.noData} />
       ) : null}
 
