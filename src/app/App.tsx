@@ -6,7 +6,10 @@ import {
   Button,
   FlatList,
   Text,
-  Alert,
+  View,
+  TouchableOpacity,
+  Modal,
+  Pressable,
 } from 'react-native';
 import DialogInput from 'react-native-dialog-input';
 
@@ -25,49 +28,84 @@ const styles = StyleSheet.create({
     padding: 9,
     fontSize: 20,
     height: 44,
-    borderBottomWidth: 0.5,
+    borderBottomWidth: 2,
   },
   noData: {
     width: '100%',
     height: '50%',
   },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  button: {
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+    marginTop: 15,
+  },
+  buttonFazendo: {
+    backgroundColor: '#FFD700',
+  },
+  buttonFaito: {
+    backgroundColor: '#556B2F',
+  },
+  buttonApagar: {
+    backgroundColor: '#FF0000',
+  },
+  textStyle: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: 'center',
+  },
 });
 
 type Todo = {
+  id: number;
   task: string;
+  status: string;
 };
 
 export default function App() {
   const [isName, setIsName] = useState<string>('');
   const [toDo, setTodo] = useState<Todo[]>([
-    {task: 'David'},
-    {task: 'Pedro'},
-    {task: 'Matheus'},
-    {task: 'Amanda'},
-    {task: 'Evelyn'},
-    {task: 'Joel'},
-    {task: 'John'},
-    {task: 'Jillian'},
-    {task: 'Jimmy'},
-    {task: 'Julie'},
+    {id: 1, task: 'David', status: 'todo'},
+    {id: 2, task: 'Pedro', status: 'doing'},
+    {id: 3, task: 'Matheus', status: 'todo'},
+    {id: 4, task: 'Amanda', status: 'doing'},
+    {id: 5, task: 'Evelyn', status: 'todo'},
+    {id: 6, task: 'Joel', status: 'doing'},
+    {id: 7, task: 'John', status: 'todo'},
+    {id: 8, task: 'Jillian', status: 'doing'},
+    {id: 9, task: 'Jimmy', status: 'todo'},
+    {id: 10, task: 'Julie', status: 'completed'},
   ]);
   const [toDoTela, setTodoTela] = useState<Todo[]>([]);
   const [input, setInput] = React.useState('');
   const [tarefaVisible, setTarefaVisible] = React.useState(false);
-
-  // let toDo = [{task: '', status: ''}];
-  // const toDo = [
-  //   {task: 'David'},
-  //   {task: 'Pedro'},
-  //   {task: 'Matheus'},
-  //   {task: 'Amanda'},
-  //   {task: 'Evelyn'},
-  //   {task: 'Joel'},
-  //   {task: 'John'},
-  //   {task: 'Jillian'},
-  //   {task: 'Jimmy'},
-  //   {task: 'Julie'},
-  // ];
+  const [isModal, setIsModal] = React.useState(false);
+  const [idTodo, setIdTodo] = React.useState(0);
 
   useEffect(() => {
     setTodoTela(toDo);
@@ -88,11 +126,35 @@ export default function App() {
 
   useEffect(() => {
     if (typeof input !== undefined && input !== '') {
-      const arrayTemp = [...toDo, {task: input}];
+      const arrayTemp = [
+        ...toDo,
+        {id: toDo.length + 1, task: input, status: 'todo'},
+      ];
       setTodo(arrayTemp);
-      setTodoTela(toDo);
+      setTodoTela(arrayTemp);
     }
   }, [input]);
+
+  function apagar() {
+    const arrayApagar = toDo.filter(p => {
+      return p.id !== idTodo;
+    });
+    setTodo(arrayApagar);
+    setTodoTela(arrayApagar);
+    setIsModal(false);
+  }
+
+  function tipoTarefa(tarefa: string) {
+    let alterArray = toDo.map(p => {
+      if (p.id === idTodo) {
+        p.status = tarefa;
+      }
+      return p;
+    });
+    setTodo(alterArray);
+    setTodoTela(alterArray);
+    setIsModal(false);
+  }
 
   return (
     <>
@@ -119,7 +181,25 @@ export default function App() {
 
       <FlatList
         data={toDoTela}
-        renderItem={({item}) => <Text style={styles.item}>{item.task}</Text>}
+        renderItem={({item}) => (
+          <View
+            style={{
+              backgroundColor:
+                item.status === 'todo'
+                  ? '#fff'
+                  : item.status === 'completed'
+                  ? '#ADFF2F'
+                  : '#FFFF00',
+            }}>
+            <TouchableOpacity
+              onPress={() => {
+                setIsModal(true);
+                setIdTodo(item.id);
+              }}>
+              <Text style={styles.item}>{item.task}</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       />
 
       <DialogInput
@@ -131,6 +211,39 @@ export default function App() {
         }}
         closeDialog={() => setTarefaVisible(false)}
       />
+
+      <Modal animationType="slide" transparent={true} visible={isModal}>
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalText}>Escolha uma das Opções</Text>
+            <Pressable
+              style={[styles.button]}
+              onPress={() => tipoTarefa('todo')}>
+              <Text style={styles.textStyle}>A fazer</Text>
+            </Pressable>
+            <Pressable
+              style={[styles.button, styles.buttonFazendo]}
+              onPress={() => tipoTarefa('doing')}>
+              <Text style={styles.textStyle}>Fazendo</Text>
+            </Pressable>
+            <Pressable
+              style={[styles.button, styles.buttonFaito]}
+              onPress={() => tipoTarefa('completed')}>
+              <Text style={styles.textStyle}>Completado</Text>
+            </Pressable>
+            <Pressable
+              style={[styles.button, styles.buttonApagar]}
+              onPress={() => apagar()}>
+              <Text style={styles.textStyle}>Apagar</Text>
+            </Pressable>
+            <Pressable
+              style={[styles.button]}
+              onPress={() => setIsModal(false)}>
+              <Text style={styles.textStyle}>Fechar</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </>
   );
 }
